@@ -20,8 +20,15 @@ def linear_beta_schedule(T: int, beta_start: float = 1e-4, beta_end: float = 0.0
 
     # pass
 
-# Step 2 - alphas_from_betas (not yet solved)
-# TODO: implement
+# Step 2 - alphas_from_betas
+import torch
+import torch.nn.functional as F
+
+def alphas_from_betas(betas):
+    # TODO: return 1 - betas
+    alpha = torch.ones_like(betas, dtype=betas.dtype, device=betas.device)
+    return alpha - betas
+    # pass
 
 # Step 3 - cumprod_alphas (not yet solved)
 # TODO: implement
