@@ -58,8 +58,15 @@ def extract_into_batch(a, t, x):
     # Note: gather 要求 index 为 torch.long 类型
     return a.gather(0, t.long()).reshape(-1, 1, 1, 1)
 
-# Step 5 - q_sample (not yet solved)
-# TODO: implement
+# Step 5 - q_sample
+import torch
+import torch.nn.functional as F
+
+def q_sample(x0, t, noise, alphas_cumprod):
+    # TODO: x_t = sqrt(bar_alpha_t) * x0 + sqrt(1 - bar_alpha_t) * noise
+    # pass
+    ac_batch = extract_into_batch(alphas_cumprod, t, x0)
+    return torch.sqrt(ac_batch) * x0 + torch.sqrt(1.0 - ac_batch) * noise
 
 # Step 6 - build_diffusion_schedule (not yet solved)
 # TODO: implement
