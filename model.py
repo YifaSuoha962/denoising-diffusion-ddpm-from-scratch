@@ -26,8 +26,12 @@ import torch.nn.functional as F
 
 def alphas_from_betas(betas):
     # TODO: return 1 - betas
-    alpha = torch.ones_like(betas, dtype=betas.dtype, device=betas.device)
-    return alpha - betas
+    
+    return 1.0 - betas
+
+    # alpha = torch.ones_like(betas, dtype=betas.dtype, device=betas.device)
+    # return alpha - betas
+    
     # pass
 
 # Step 3 - cumprod_alphas (not yet solved)
