@@ -65,7 +65,10 @@ import torch.nn.functional as F
 def q_sample(x0, t, noise, alphas_cumprod):
     # TODO: x_t = sqrt(bar_alpha_t) * x0 + sqrt(1 - bar_alpha_t) * noise
     # pass
+    
     ac_batch = extract_into_batch(alphas_cumprod, t, x0)
+    # ac_batch = alphas_cumprod[t]
+    # Note: torch 的广播机制是从最里层 (shape的最后一位) 开始的
     return torch.sqrt(ac_batch) * x0 + torch.sqrt(1.0 - ac_batch) * noise
 
 # Step 6 - build_diffusion_schedule (not yet solved)
