@@ -219,8 +219,42 @@ def tiny_unet_forward(x, t, params: dict):
 
     return out
 
-# Step 12 - make_blob_dataset (not yet solved)
-# TODO: implement
+# Step 12 - make_blob_dataset
+import torch
+import torch.nn.functional as F
+
+def make_blob_dataset(n: int = 128, size: int = 8, seed: int = 0):
+    # TODO: n images with a random bright disk on a black background
+    # 固定随机种子
+    torch.manual_seed(seed)
+    # 圆盘半径
+    radius = size // 4
+    # 初始化黑色背景
+    images = torch.zeros(n, 1, size, size, dtype=torch.float32)
+    # 像素坐标网格
+    yy, xx = torch.meshgrid(
+        torch.arange(size),
+        torch.arange(size),
+        indexing='ij'
+    )
+
+    for i in range(n):
+        # 随机圆心：(cy, cx)
+        center = torch.randint(
+            radius,
+            size - radius,
+            (2,)
+        )
+
+        cy, cx = center[0], center[1]
+
+        # 判断每个像素是否位于圆盘内部
+        mask = (yy - cy) ** 2 + (xx - cx) ** 2 <= radius ** 2
+
+        # 圆盘像素设为 1
+        images[i, 0][mask] = 1.0
+
+    return images
 
 # Step 13 - ddpm_train_step (not yet solved)
 # TODO: implement
