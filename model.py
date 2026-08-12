@@ -135,8 +135,38 @@ def timestep_embedding(t, dim: int):
     return emb
     # pass
 
-# Step 10 - init_tiny_unet (not yet solved)
-# TODO: implement
+# Step 10 - init_tiny_unet
+import torch
+import torch.nn.functional as F
+
+def init_tiny_unet(
+    in_ch: int = 1,
+    hidden: int = 16,
+    time_dim: int = 16,
+    seed: int = 0
+) -> dict:
+    # 固定随机种子
+    torch.manual_seed(seed)
+
+    params = {
+        # conv 3x3: in_ch -> hidden
+        'conv_in_w': (torch.randn(hidden, in_ch, 3, 3) * 0.02).requires_grad_(),
+        'conv_in_b': torch.zeros(hidden, requires_grad=True),
+
+        # timestep embedding: time_dim -> hidden
+        'time_mlp_w': (torch.randn(hidden, time_dim) * 0.02).requires_grad_(),
+        'time_mlp_b': torch.zeros(hidden, requires_grad=True),
+
+        # middle conv: hidden -> hidden
+        'conv_mid_w': (torch.randn(hidden, hidden, 3, 3) * 0.02).requires_grad_(),
+        'conv_mid_b': torch.zeros(hidden, requires_grad=True),
+
+        # output conv: hidden -> in_ch
+        'conv_out_w': (torch.randn(in_ch, hidden, 3, 3) * 0.02).requires_grad_(),
+        'conv_out_b': torch.zeros(in_ch, requires_grad=True),
+    }
+
+    return params
 
 # Step 11 - tiny_unet_forward (not yet solved)
 # TODO: implement
