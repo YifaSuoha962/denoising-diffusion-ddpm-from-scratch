@@ -128,7 +128,8 @@ def timestep_embedding(t, dim: int):
             half, device=t.device, dtype=torch.float32
         ) / (half - 1)
     freqs = 10000 ** (-exponents)
-    args = t.float().unsqueeze(1) * freqs.unsqueeze(0)  # (B, half)
+    args = torch.outer(t.float(), freqs)
+    # args = t.float().unsqueeze(1) * freqs.unsqueeze(0)  # (B, half)
 
     emb = torch.cat([torch.sin(args), torch.cos(args)], dim=1)
     return emb
