@@ -181,7 +181,7 @@ def tiny_unet_forward(x, t, params: dict):
         params['conv_in_w'],
         params['conv_in_b'],
         padding=1
-    )
+    )  # shape = [bz, c, h, w]
 
     # 2. timestep embedding
     time_dim = params['time_mlp_w'].shape[1]
@@ -196,7 +196,7 @@ def tiny_unet_forward(x, t, params: dict):
     temb = F.relu(temb)
 
     # (B, hidden) -> (B, hidden, 1, 1)，然后广播到 H,W
-    h = h + temb[:, :, None, None]
+    h = h + temb[:, :, None, None]      # Note: 和之前 alpha_cumprod 一样,要乘到每张图片上
 
     # 3. ReLU + middle conv + ReLU
     h = F.relu(h)
