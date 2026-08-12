@@ -287,8 +287,32 @@ def ddpm_train_step(params: dict, x0, schedule: dict, lr: float = 1e-2, seed: in
         new_params[name] = p_new
     return new_params, float(loss.detach())
 
-# Step 14 - train_ddpm (not yet solved)
-# TODO: implement
+# Step 14 - train_ddpm
+import torch
+import torch.nn.functional as F
+
+def train_ddpm(dataset, params: dict, schedule: dict, num_steps: int = 50, batch_size: int = 16, lr: float = 1e-2, seed: int = 0) -> tuple[dict, list]:
+    # TODO: minibatch SGD training loop
+    history = []
+    cur_params = params
+
+    for step in range(num_steps):
+        # 每一步使用不同但可复现的随机种子
+        step_seed = seed + step
+        torch.manual_seed(step_seed)
+        # 随机采样sample索引
+        indices = torch.randint(0, len(dataset), (batch_size,))
+        # 获取对应的 minibatch
+        batch = dataset[indices]
+        updated_params, cur_loss = ddpm_train_step(params=cur_params, 
+                                                   x0=batch, 
+                                                   schedule=schedule, 
+                                                   lr=lr, 
+                                                   seed=step_seed)
+        history.append(cur_loss)
+        cur_params = updated_params
+
+    return cur_params, history
 
 # Step 15 - predict_x0_from_eps (not yet solved)
 # TODO: implement
