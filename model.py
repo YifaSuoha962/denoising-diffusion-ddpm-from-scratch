@@ -427,8 +427,34 @@ def ddpm_p_sample(x_t, t, params: dict, schedule: dict, noise=None):
 
     return x_prev
 
-# Step 18 - ddpm_sample_loop (not yet solved)
-# TODO: implement
+# Step 18 - ddpm_sample_loop
+import torch
+import torch.nn.functional as F
+
+def ddpm_sample_loop(params: dict, schedule: dict, shape: tuple, seed: int = 0):
+    # TODO: ancestral sampling from pure noise to x0
+    # 固定随机种子
+    torch.manual_seed(seed)
+
+    # 从纯高斯噪声开始
+    x = torch.randn(shape)
+
+    B = shape[0]
+    T = schedule['T']
+
+    # range(st, ed, step)
+    for t in range(T-1, -1, -1):
+        # Note-1: 当前 batch 中所有样本使用同一个 timestep
+        t_batch = torch.full(
+            (B,),
+            t,
+            dtype=torch.long,
+            device=x.device
+        )
+        # denoise
+        x = ddpm_p_sample(x, t_batch, params, schedule)
+
+    return x
 
 # Step 19 - sample_quality_mse (not yet solved)
 # TODO: implement
