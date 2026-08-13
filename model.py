@@ -337,6 +337,7 @@ def ddpm_p_mean_variance(x_t, t, eps, schedule: dict):
     ).clamp(-1.0, 1.0)
 
     # 2. 提取当前 timestep 对应的 alpha_t, beta_t, alpha_bar_t
+    # 为了broadcast, 直接schedule['alphas']
     alpha_t = extract_into_batch(
         schedule['alphas'],
         t,
@@ -395,8 +396,36 @@ def ddpm_p_mean_variance(x_t, t, eps, schedule: dict):
 
     return mean, variance, x0_hat
 
-# Step 17 - ddpm_p_sample (not yet solved)
-# TODO: implement
+# Step 17 - ddpm_p_sample
+import torch
+import torch.nn.functional as F
+
+def ddpm_p_sample(x_t, t, params: dict, schedule: dict, noise=None):
+    # 1. 预测当前 x_t 中的噪声 epsilon
+    eps = tiny_unet_forward(x_t, t, params)
+
+    # 2. 计算反向过程 Gaussian 的 mean 和 variance
+    mean, var, _ = ddpm_p_mean_variance(
+        x_t,
+        t,
+        eps,
+        schedule
+    )
+
+    # 3. 如果没有提供 noise，则采样标准高斯噪声
+    if noise is None:
+        noise = torch.randn_like(x_t)
+
+    # t == 0 时最后一步不再加入随机噪声
+    # shape: (B,) -> (B,1,1,1)
+    nonzero_mask = (t != 0).float().reshape(-1, 1, 1, 1)
+
+    noise = noise * nonzero_mask
+
+    # x_{t-1} = mean + sqrt(var) * noise
+    x_prev = mean + torch.sqrt(var) * noise
+
+    return x_prev
 
 # Step 18 - ddpm_sample_loop (not yet solved)
 # TODO: implement
