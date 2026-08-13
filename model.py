@@ -323,8 +323,77 @@ def predict_x0_from_eps(x_t, t, eps, alphas_cumprod):
     x0_hat = (x_t - torch.sqrt(1-alphas_cumprod[t].reshape(-1, 1, 1, 1)) * eps) / torch.sqrt(alphas_cumprod[t].reshape(-1, 1, 1, 1))
     return x0_hat
 
-# Step 16 - ddpm_p_mean_variance (not yet solved)
-# TODO: implement
+# Step 16 - ddpm_p_mean_variance
+import torch
+import torch.nn.functional as F
+
+def ddpm_p_mean_variance(x_t, t, eps, schedule: dict):
+    # 1. 从预测噪声恢复 x0，并限制到 [-1, 1]
+    x0_hat = predict_x0_from_eps(
+        x_t,
+        t,
+        eps,
+        schedule['alphas_cumprod']
+    ).clamp(-1.0, 1.0)
+
+    # 2. 提取当前 timestep 对应的 alpha_t, beta_t, alpha_bar_t
+    alpha_t = extract_into_batch(
+        schedule['alphas'],
+        t,
+        x_t
+    )
+
+    beta_t = extract_into_batch(
+        schedule['betas'],
+        t,
+        x_t
+    )
+
+    alpha_bar_t = extract_into_batch(
+        schedule['alphas_cumprod'],
+        t,
+        x_t
+    )
+
+    # 3. 构造 alpha_bar_{t-1}
+    #    t == 0 时按照约定 alpha_bar_{-1} = 1
+    t_prev = torch.clamp(t - 1, min=0)
+
+    alpha_bar_prev = extract_into_batch(
+        schedule['alphas_cumprod'],
+        t_prev,
+        x_t
+    )
+
+    # 对 t == 0 的样本覆盖为 1
+    is_t0 = (t == 0).reshape(-1, 1, 1, 1)
+
+    alpha_bar_prev = torch.where(
+        is_t0,
+        torch.ones_like(alpha_bar_prev),
+        alpha_bar_prev
+    )
+
+    # 4. posterior mean 的两个系数
+    coef_x0 = (
+        torch.sqrt(alpha_bar_prev)
+        * beta_t
+        / (1.0 - alpha_bar_t)
+    )
+
+    coef_xt = (
+        torch.sqrt(alpha_t)
+        * (1.0 - alpha_bar_prev)
+        / (1.0 - alpha_bar_t)
+    )
+
+    # 5. posterior mean
+    mean = coef_x0 * x0_hat + coef_xt * x_t
+
+    # 6. fixed variance: sigma_t^2 = beta_t
+    variance = beta_t
+
+    return mean, variance, x0_hat
 
 # Step 17 - ddpm_p_sample (not yet solved)
 # TODO: implement
