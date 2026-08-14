@@ -246,6 +246,11 @@ def make_blob_dataset(n: int = 128, size: int = 8, seed: int = 0):
     # TODO: n images with a random bright disk on a black background
     # 固定随机种子
     torch.manual_seed(seed)
+
+    """
+    (不会) 合成网格数据, 内容视为tensor，坐标处理用meshgrid
+    """
+
     # 圆盘半径
     radius = size // 4
     # 初始化黑色背景
