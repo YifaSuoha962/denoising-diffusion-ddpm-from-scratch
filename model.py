@@ -514,8 +514,25 @@ def ddpm_sample_loop(params: dict, schedule: dict, shape: tuple, seed: int = 0):
 
     return x
 
-# Step 19 - sample_quality_mse (not yet solved)
-# TODO: implement
+# Step 19 - sample_quality_mse
+import torch
+import torch.nn.functional as F
+
+def sample_quality_mse(samples, dataset) -> float:
+    # TODO: mean over samples of min MSE to any dataset image
+    
+    # 1. flatten spatial dims: (N/M, C, H, W) -> (N/M, D)
+    samples_flat = samples.reshape(samples.shape[0], -1)
+    dataset_flat = dataset.reshape(dataset.shape[0], -1)
+    # ****************
+    # 2. Core -- pair-wise distance: (N, 1, D) - (1, M, D) -> (N, M, D)
+    # ****************
+    diff = samples_flat[:, None, :] - dataset_flat[None, :, :]
+    mse = (diff ** 2).mean(dim=-1)
+    # 3. find the nearest dataset for each sample
+    min_mse = mse.min(dim=1).values     # (N,)
+    # 4. return total mse
+    return float(min_mse.mean())
 
 # Step 20 - ddpm_experiment (not yet solved)
 # TODO: implement
