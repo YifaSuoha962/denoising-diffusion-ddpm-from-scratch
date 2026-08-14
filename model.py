@@ -404,6 +404,10 @@ def ddpm_p_mean_variance(x_t, t, eps, schedule: dict):
         x_t
     )
 
+    """
+    (不会) 将tensor视为索引，用where机制配合高级索引机制实现批量的条件赋值
+    """
+
     # 对 t == 0 的样本覆盖为 1
     is_t0 = (t == 0).reshape(-1, 1, 1, 1)
 
