@@ -157,6 +157,10 @@ def init_tiny_unet(
     # 固定随机种子
     torch.manual_seed(seed)
 
+    """
+    (不会) 随机初始化可学习参数
+    """
+
     params = {
         # conv 3x3: in_ch -> hidden
         'conv_in_w': (torch.randn(hidden, in_ch, 3, 3) * 0.02).requires_grad_(),
