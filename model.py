@@ -417,6 +417,10 @@ def ddpm_p_mean_variance(x_t, t, eps, schedule: dict):
         alpha_bar_prev
     )
 
+    """
+    (不熟悉) \mu 的推导公式
+    """
+
     # 4. posterior mean 的两个系数
     coef_x0 = (
         torch.sqrt(alpha_bar_prev)
