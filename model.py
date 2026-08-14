@@ -301,7 +301,9 @@ def ddpm_train_step(params: dict, x0, schedule: dict, lr: float = 1e-2, seed: in
                                      x0, t, noise, schedule['alphas_cumprod'])
     loss.backward()
     
-    # 手动 SGD 更新参数
+    """
+    (不会) 手动 SGD 更新参数
+    """
     new_params = {}
     for name, p in params.items():
         if p.grad is not None:
