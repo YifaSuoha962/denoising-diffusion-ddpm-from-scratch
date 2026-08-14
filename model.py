@@ -50,13 +50,15 @@ import torch.nn.functional as F
 def extract_into_batch(a, t, x):
     # TODO: gather a[t] and reshape to (B, 1, 1, 1) for broadcasting with x
     # pass
-
-    # by deepseek
-    # return a[t].view(-1, 1, 1, 1)
-
+    """
+    (不熟悉) 高级索引和gather收集函数
+    """
     # offical solution
     # Note: gather 要求 index 为 torch.long 类型
     return a.gather(0, t.long()).reshape(-1, 1, 1, 1)
+
+    # by deepseek
+    # return a[t].view(-1, 1, 1, 1)
 
 # Step 5 - q_sample
 import torch
