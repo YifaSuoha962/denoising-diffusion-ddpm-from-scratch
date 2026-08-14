@@ -158,7 +158,7 @@ def init_tiny_unet(
     torch.manual_seed(seed)
 
     """
-    (不会) 随机初始化可学习参数
+    (不会) 随机初始化可学习参数 (torch.randn + requires_grad_() -- 注意要原地操作)
     """
 
     params = {
