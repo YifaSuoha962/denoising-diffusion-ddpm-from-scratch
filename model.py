@@ -524,6 +524,9 @@ def sample_quality_mse(samples, dataset) -> float:
     # 1. flatten spatial dims: (N/M, C, H, W) -> (N/M, D)
     samples_flat = samples.reshape(samples.shape[0], -1)
     dataset_flat = dataset.reshape(dataset.shape[0], -1)
+    """
+    (不会) 如何批量找出每个样本的最近邻
+    """
     # ****************
     # 2. Core -- pair-wise distance: (N, 1, D) - (1, M, D) -> (N, M, D)
     # ****************
