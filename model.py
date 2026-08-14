@@ -295,8 +295,13 @@ def train_ddpm(dataset, params: dict, schedule: dict, num_steps: int = 50, batch
     # TODO: minibatch SGD training loop
     history = []
     cur_params = params
-
+    """
+    (参数含义没理解) num_steps 类似于 epoch
+    """
     for step in range(num_steps):
+        """
+        (不会) 构造随机的 batch 索引
+        """
         # 每一步使用不同但可复现的随机种子
         step_seed = seed + step
         torch.manual_seed(step_seed)
