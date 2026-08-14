@@ -459,6 +459,9 @@ def ddpm_p_sample(x_t, t, params: dict, schedule: dict, noise=None):
     )
 
     # 3. 如果没有提供 noise，则采样标准高斯噪声
+    """
+    这类体现了生成模型的随机性
+    """
     if noise is None:
         noise = torch.randn_like(x_t)
 
