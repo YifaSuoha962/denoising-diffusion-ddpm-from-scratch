@@ -190,6 +190,10 @@ import torch.nn.functional as F
 def tiny_unet_forward(x, t, params: dict):
     # TODO: time-conditioned tiny CNN predicting noise
 
+    """
+    (不会) 卷积运算，不能直接用矩阵乘法
+    """
+
     # 1. conv 3x3: in_ch -> hidden
     h = F.conv2d(
         x,
