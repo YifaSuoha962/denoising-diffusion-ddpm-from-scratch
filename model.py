@@ -462,6 +462,10 @@ def ddpm_p_sample(x_t, t, params: dict, schedule: dict, noise=None):
     if noise is None:
         noise = torch.randn_like(x_t)
 
+    """
+    (不会) 借助tensor实现mask机制 (x = x * mask) 
+    """
+
     # t == 0 时最后一步不再加入随机噪声
     # shape: (B,) -> (B,1,1,1)
     nonzero_mask = (t != 0).float().reshape(-1, 1, 1, 1)
