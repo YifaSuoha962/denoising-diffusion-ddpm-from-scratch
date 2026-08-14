@@ -124,6 +124,10 @@ def timestep_embedding(t, dim: int):
     # sinusoidal timestep embedding of shape (B, dim)
     assert dim % 2 == 0, "dim must be even"
 
+    """
+    (不熟悉) 构造指定tensor，批量处理边界数据
+    """
+
     half = dim // 2
     # i / (half - 1), when half == 1 use exponent 0
     if half == 1:
