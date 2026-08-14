@@ -137,6 +137,8 @@ def timestep_embedding(t, dim: int):
             half, device=t.device, dtype=torch.float32
         ) / (half - 1)
     freqs = 10000 ** (-exponents)
+
+    # 笛卡尔积既可以通过对齐维度、通过广播机制实现，也可以通过外积实现
     args = torch.outer(t.float(), freqs)
     # args = t.float().unsqueeze(1) * freqs.unsqueeze(0)  # (B, half)
 
