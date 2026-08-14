@@ -496,6 +496,10 @@ def ddpm_sample_loop(params: dict, schedule: dict, shape: tuple, seed: int = 0):
     B = shape[0]
     T = schedule['T']
 
+    """
+    (不会) 需要预先创建时间轴，然后沿着时间轴批量做denoising
+    """
+
     # range(st, ed, step)
     for t in range(T-1, -1, -1):
         # Note-1: 当前 batch 中所有样本使用同一个 timestep
