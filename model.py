@@ -472,6 +472,10 @@ def ddpm_p_sample(x_t, t, params: dict, schedule: dict, noise=None):
 
     noise = noise * nonzero_mask
 
+    """
+    (不熟) x_{t-1} 为什么能通过重参数化直接得到
+    """
+
     # x_{t-1} = mean + sqrt(var) * noise
     x_prev = mean + torch.sqrt(var) * noise
 
