@@ -365,7 +365,7 @@ def predict_x0_from_eps(x_t, t, eps, alphas_cumprod):
 import torch
 import torch.nn.functional as F
 
-def ddpm_p_mean_variance(x_t, t, eps, schedule: dict, cal_ver='simplified'):
+def ddpm_p_mean_variance(x_t, t, eps, schedule: dict, cal_ver='full'):
     # 1. 从预测噪声恢复 x0，并限制到 [-1, 1]
     x0_hat = predict_x0_from_eps(
         x_t,
