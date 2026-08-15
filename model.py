@@ -373,6 +373,9 @@ def ddpm_p_mean_variance(x_t, t, eps, schedule: dict, cal_ver='simplified'):
         eps,
         schedule['alphas_cumprod']
     ).clamp(-1.0, 1.0)
+    """
+    .clamp(-1.0, 1.0) 会导致后面的两种计算方式得到的mean不一致
+    """
 
     # 2. 提取当前 timestep 对应的 alpha_t, beta_t, alpha_bar_t
     # 为了broadcast, 直接schedule['alphas']
