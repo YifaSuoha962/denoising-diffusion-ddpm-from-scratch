@@ -365,7 +365,7 @@ def predict_x0_from_eps(x_t, t, eps, alphas_cumprod):
 import torch
 import torch.nn.functional as F
 
-def ddpm_p_mean_variance(x_t, t, eps, schedule: dict):
+def ddpm_p_mean_variance(x_t, t, eps, schedule: dict, cal_ver='simplified'):
     # 1. 从预测噪声恢复 x0，并限制到 [-1, 1]
     x0_hat = predict_x0_from_eps(
         x_t,
@@ -393,49 +393,53 @@ def ddpm_p_mean_variance(x_t, t, eps, schedule: dict):
         t,
         x_t
     )
+    if cal_ver == 'full':
+        # 3. 构造 alpha_bar_{t-1}
+        #    t == 0 时按照约定 alpha_bar_{-1} = 1
+        t_prev = torch.clamp(t - 1, min=0)
 
-    # 3. 构造 alpha_bar_{t-1}
-    #    t == 0 时按照约定 alpha_bar_{-1} = 1
-    t_prev = torch.clamp(t - 1, min=0)
+        alpha_bar_prev = extract_into_batch(
+            schedule['alphas_cumprod'],
+            t_prev,
+            x_t
+        )
 
-    alpha_bar_prev = extract_into_batch(
-        schedule['alphas_cumprod'],
-        t_prev,
-        x_t
-    )
+        """
+        (不会) 将tensor视为索引，用where机制配合高级索引机制实现批量的条件赋值
+        """
 
-    """
-    (不会) 将tensor视为索引，用where机制配合高级索引机制实现批量的条件赋值
-    """
+        # 对 t == 0 的样本覆盖为 1
+        is_t0 = (t == 0).reshape(-1, 1, 1, 1)
 
-    # 对 t == 0 的样本覆盖为 1
-    is_t0 = (t == 0).reshape(-1, 1, 1, 1)
+        alpha_bar_prev = torch.where(
+            is_t0,
+            torch.ones_like(alpha_bar_prev),
+            alpha_bar_prev
+        )
 
-    alpha_bar_prev = torch.where(
-        is_t0,
-        torch.ones_like(alpha_bar_prev),
-        alpha_bar_prev
-    )
+        """
+        (不熟悉) \mu 的推导公式
+        """
 
-    """
-    (不熟悉) \mu 的推导公式
-    """
+        # 4. posterior mean 的两个系数
+        coef_x0 = (
+            torch.sqrt(alpha_bar_prev)
+            * beta_t
+            / (1.0 - alpha_bar_t)
+        )
 
-    # 4. posterior mean 的两个系数
-    coef_x0 = (
-        torch.sqrt(alpha_bar_prev)
-        * beta_t
-        / (1.0 - alpha_bar_t)
-    )
+        coef_xt = (
+            torch.sqrt(alpha_t)
+            * (1.0 - alpha_bar_prev)
+            / (1.0 - alpha_bar_t)
+        )
 
-    coef_xt = (
-        torch.sqrt(alpha_t)
-        * (1.0 - alpha_bar_prev)
-        / (1.0 - alpha_bar_t)
-    )
+        # 5. posterior mean
+        mean = coef_x0 * x0_hat + coef_xt * x_t
 
-    # 5. posterior mean
-    mean = coef_x0 * x0_hat + coef_xt * x_t
+    # DDPM 原文中简化的计算公式
+    if cal_ver == 'simplified':
+        mean = (x_t - (1.0 - alpha_t) *  eps / torch.sqrt(1.0 - alpha_bar_t)) / torch.sqrt(alpha_t)
 
     # 6. fixed variance: sigma_t^2 = beta_t
     variance = beta_t
@@ -455,7 +459,8 @@ def ddpm_p_sample(x_t, t, params: dict, schedule: dict, noise=None):
         x_t,
         t,
         eps,
-        schedule
+        schedule,
+        cal_ver='full'
     )
 
     # 3. 如果没有提供 noise，则采样标准高斯噪声
