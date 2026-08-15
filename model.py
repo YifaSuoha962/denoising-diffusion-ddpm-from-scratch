@@ -463,7 +463,7 @@ def ddpm_p_sample(x_t, t, params: dict, schedule: dict, noise=None):
         t,
         eps,
         schedule,
-        cal_ver='simplified'
+        cal_ver='full'
     )
 
     # 3. 如果没有提供 noise，则采样标准高斯噪声
