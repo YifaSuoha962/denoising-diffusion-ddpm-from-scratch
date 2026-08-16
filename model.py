@@ -112,6 +112,10 @@ def diffusion_training_loss(model, x0, t, noise, alphas_cumprod):
     x_t = q_sample(x0, t, noise, alphas_cumprod)
     pred_noise = model(x_t, t)
 
+    """
+    本质上算的是 \sum_{t \in [1:T]} D_{KL} ( q(x_{t-1}|x_t,x_0) \mid p(x_{t-1}|x_t) )
+    逐渐简化为 最小化两个参数化分布的均值, 在通过公式简化成中间的 \epsilon 变量
+    """
     return noise_prediction_loss(pred_noise, noise)
 
 # Step 9 - timestep_embedding
