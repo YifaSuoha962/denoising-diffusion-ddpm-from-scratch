@@ -378,6 +378,9 @@ import torch.nn.functional as F
 
 def ddpm_p_mean_variance(x_t, t, eps, schedule: dict, cal_ver='full'):
     # 1. 从预测噪声恢复 x0，并限制到 [-1, 1]
+    """
+    x0_hat 可以理解为当前预估的去噪方向 (往哪走)
+    """
     x0_hat = predict_x0_from_eps(
         x_t,
         t,
