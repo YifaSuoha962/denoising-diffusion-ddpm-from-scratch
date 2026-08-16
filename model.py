@@ -115,7 +115,13 @@ def diffusion_training_loss(model, x0, t, noise, alphas_cumprod):
     """
     本质上算的是 \sum_{t \in [1:T]} D_{KL} ( q(x_{t-1}|x_t,x_0) \mid p(x_{t-1}|x_t) )
     直观理解为：对齐给定时间 T 步的 posterior (q) 和 prior (p) 去噪分布
-    逐渐简化为 最小化两个参数化分布的均值, 在通过公式简化成中间的 \epsilon 变量
+    
+    Q: 为啥算 q 均值的时候，不需要显示带入 x_0，直接用 noise代替了？
+    - 根据加噪过程公式，确定了 x_t 和 noise，x_0可以通过
+        x_0 = 1/sqrt(\alpha_bar_t) [x_t - sqrt(1 - \alpha_bar_t) noise] 求得
+        q 均值因此简化为 f(x_t, noise) 表达式。
+    - 此外，KL_散度通过展开计算，逐渐简化为 最小化两个参数化分布的均值, 再通过消掉去q, p 都有的x_t，
+      最终简化成连个 noise 变量构成的表达式。
     """
     return noise_prediction_loss(pred_noise, noise)
 
